@@ -64,4 +64,74 @@ function strtobool($str) {
 			return true;
 	}
 }
+/** Checks a variable to see if it should be considered a boolean true or false.
+ *     Also takes into account some text-based representations of true of false,
+ *     such as 'false','N','yes','on','off', etc.
+ * @author Samuel Levy <sam+nospam@samuellevy.com>
+ * @param mixed $in The variable to check
+ * @param bool $strict If set to false, consider everything that is not false to
+ *                     be true.
+ * @return bool The boolean equivalent or null (if strict, and no exact equivalent)
+ */
+function boolval($in, $strict=false) {
+    $out = null;
+    $in = (is_string($in)?strtolower($in):$in);
+    // if not strict, we only have to check if something is false
+    if (in_array($in,array('false','no', 'n','0','off',false,0), true) || !$in) {
+        $out = false;
+    } else if ($strict) {
+        // if strict, check the equivalent true values
+        if (in_array($in,array('true','yes','y','1','on',true,1), true)) {
+            $out = true;
+        }
+    } else {
+        // not strict? let the regular php bool check figure it out (will
+        //     largely default to true)
+        $out = ($in?true:false);
+    }
+    return $out;
+}
+/**
+* funpack
+* format: array of key, length pairs
+* data: string to unpack
+*/
+function funpack($format, $data){
+	$pos=0;
+    foreach ($format as $key => $len) {
+    	if(substr($key,0,4)!='skip')$result[$key] = trim(substr($data, $pos, $len));
+        $pos+= $len;
+    }
+    return $result;
+}
+/**
+* phunpack
+* format: same format string as unpack()
+* data: string to unpack
+*/
+function phunpack($format, $data){
+	$tmp = unpack($format,$data);
+	$result=array();
+    foreach ($tmp as $key => $val) {
+    	if(substr($key,0,4)!='skip')$result[$key] = $val;
+    }
+    return $result;
+}
+/**
+* makeformat
+* format: array of key, length pairs
+* data: string to unpack
+*/
+function makeformatstring($names){
+	$formatstring = '';
+    foreach ($names as  $name=>$type) {
+    	if($type=='@'){
+    		$formatstring .= $type.substr($name,2)."/";
+    	} else {
+    		$formatstring .= $type.$name."/";
+    	}
+    	
+    }
+    return $formatstring;
+}
 ?>

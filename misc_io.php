@@ -134,4 +134,49 @@ function makeformatstring($names){
     }
     return $formatstring;
 }
+/*
+ * a map of pg field types returned from the pg_field_type() function
+ * http://www.php.net/manual/en/function.pg-field-type.php
+ * to google visualization column types
+ * https://developers.google.com/chart/interactive/docs/reference
+ * 
+ * it's a moving gun and a moving target - might need to keep this mapping updated
+ */
+function pgtype_to_gvtype ($field_type) {
+	switch (strtolower(trim($field_type))) {
+		case 'bool': // a boolean from a pg database
+			$output = 'boolean';
+			break;
+		case 'int2': // a small integer from a pg database
+		case 'int4': // an integer from a pg database
+		case 'int8': // a long integer from a pg database
+			$output = 'number';
+			break;
+		case 'numeric': // a "numeric" real number field from a pg database
+		case 'float4': // a single precision real number field from a pg database
+		case 'float8': // a double precision real number field from a pg database
+			$output = 'number';
+			break;
+		case 'date': // a date field from a pg database
+			$output = 'date';
+			break;
+		case 'time': // a time field from a pg database
+		case 'timetz': // a time field with timezone from a pg database
+			$output = 'timeofday';
+			break;
+		case 'timestamp': // a timestamp field from a pg database
+		case 'timestamptz': // a timestamp field with timezone from a pg database
+			$output = 'datetime';
+			break;
+		case 'text':  // a text field from a pg database
+		case 'varchar': // a varchar field from a pg database
+		case 'bpchar': // a bpchar field from a pg database
+			$output = 'string';
+			break;
+		default: // an unanticipated field type, put a text box or single selects, but may not work
+			$output = 'string';
+	}
+	return $output;
+}
+
 ?>

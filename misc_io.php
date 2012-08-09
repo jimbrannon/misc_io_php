@@ -137,6 +137,9 @@ function makeformatstring($names){
 /*
  * a map of pg field types returned from the pg_field_type() function
  * http://www.php.net/manual/en/function.pg-field-type.php
+ * and
+ * http://www.postgresql.org/docs/9.1/static/datatype-datetime.html
+ * 
  * to google visualization column types
  * https://developers.google.com/chart/interactive/docs/reference
  * 
@@ -178,5 +181,162 @@ function pgtype_to_gvtype ($field_type) {
 	}
 	return $output;
 }
-
+/*
+ * converts a pg field type and value pair into the correct string for the GViz JSON
+ * php field types:
+ * http://www.php.net/manual/en/function.pg-field-type.php
+ * and
+ * http://www.postgresql.org/docs/9.1/static/datatype-datetime.html
+ * 
+ * google visualization column types:
+ * https://developers.google.com/chart/interactive/docs/reference
+ * 
+ * some weird stuff here, such as date strings must be copnverted to "new Date()" javascript function calls
+ *  
+ * it's a moving gun and a moving target - might need to keep this mapping updated
+ */
+function pgtypeval_to_gvval ($field_type, $val) {
+	switch (strtolower(trim($field_type))) {
+		case 'bool': // a boolean from a pg database
+			// convert to gviz column type of 'boolean'
+			$output = $val;
+			break;
+		case 'int2': // a small integer from a pg database
+		case 'int4': // an integer from a pg database
+		case 'int8': // a long integer from a pg database
+			// convert to gviz column type of 'number'
+			$output = $val;
+			break;
+		case 'numeric': // a "numeric" real number field from a pg database
+		case 'float4': // a single precision real number field from a pg database
+		case 'float8': // a double precision real number field from a pg database
+			// convert to gviz column type of 'number'
+			$output = $val;
+			break;
+		case 'date': // a date field from a pg database
+			// convert to gviz column type of 'date'
+			$time_stamp = strtotime($val);
+			$time_array = getdate($time_stamp);
+			$yy = $time_array['year'];
+			$mm = $time_array['mon']-1; //why -1?  i have no idea...
+			$dd = $time_array['mday'];
+			$hr = $time_array['hours'];
+			$min = $time_array['minutes'];
+			$sec = $time_array['seconds'];
+			$output = "new Date($yy,$mm,$dd,$hr,$min,$sec)";
+			break;
+		case 'time': // a time field from a pg database
+		case 'timetz': // a time field with timezone from a pg database
+			// convert to gviz column type of 'timeofday'
+			$time_stamp = strtotime($val);
+			$time_array = getdate($time_stamp);
+			$yy = $time_array['year'];
+			$mm = $time_array['mon']-1; //why -1?  i have no idea...
+			$dd = $time_array['mday'];
+			$hr = $time_array['hours'];
+			$min = $time_array['minutes'];
+			$sec = $time_array['seconds'];
+			$output = "new Date($yy,$mm,$dd,$hr,$min,$sec)";
+			break;
+		case 'timestamp': // a timestamp field from a pg database
+		case 'timestamptz': // a timestamp field with timezone from a pg database
+			// convert to gviz column type of 'datetime'
+			$time_stamp = strtotime($val);
+			$time_array = getdate($time_stamp);
+			$yy = $time_array['year'];
+			$mm = $time_array['mon']-1; //why -1?  i have no idea...
+			$dd = $time_array['mday'];
+			$hr = $time_array['hours'];
+			$min = $time_array['minutes'];
+			$sec = $time_array['seconds'];
+			$output = "new Date($yy,$mm,$dd,$hr,$min,$sec)";
+			break;
+		case 'text':  // a text field from a pg database
+		case 'varchar': // a varchar field from a pg database
+		case 'bpchar': // a bpchar field from a pg database
+			// convert to gviz column type of 'string'
+			$output = $val;
+			break;
+		default: // an unanticipated field type, put a text box or single selects, but may not work
+			// convert to gviz column type of 'string'
+			$output = $val;
+	}
+	return $output;
+}
+/*
+ * converts a pg field type and value pair into a value that can be used as a PHP hash index value
+ * php field types:
+ * http://www.php.net/manual/en/function.pg-field-type.php and
+ * http://www.postgresql.org/docs/9.1/static/datatype-datetime.html
+ *
+ * the key thing is that 
+ */
+function pgtypeval_to_hashindex ($field_type, $val) {
+	switch (strtolower(trim($field_type))) {
+		case 'bool': // a boolean from a pg database
+			// convert to gviz column type of 'boolean'
+			$output = $val;
+			break;
+		case 'int2': // a small integer from a pg database
+		case 'int4': // an integer from a pg database
+		case 'int8': // a long integer from a pg database
+			// convert to gviz column type of 'number'
+			$output = $val;
+			break;
+		case 'numeric': // a "numeric" real number field from a pg database
+		case 'float4': // a single precision real number field from a pg database
+		case 'float8': // a double precision real number field from a pg database
+			// convert to gviz column type of 'number'
+			$output = $val;
+			break;
+		case 'date': // a date field from a pg database
+			// convert to gviz column type of 'date'
+			$time_stamp = strtotime($val);
+			$time_array = getdate($time_stamp);
+			$yy = $time_array['year'];
+			$mm = $time_array['mon']; //why -1?  i have no idea...
+			$dd = $time_array['mday'];
+			$hr = $time_array['hours'];
+			$min = $time_array['minutes'];
+			$sec = $time_array['seconds'];
+			$output = "new Date($yy,$mm,$dd,$hr,$min,$sec)";
+			break;
+		case 'time': // a time field from a pg database
+		case 'timetz': // a time field with timezone from a pg database
+			// convert to gviz column type of 'timeofday'
+			$time_stamp = strtotime($val);
+			$time_array = getdate($time_stamp);
+			$yy = $time_array['year'];
+			$mm = $time_array['mon']; //why -1?  i have no idea...
+			$dd = $time_array['mday'];
+			$hr = $time_array['hours'];
+			$min = $time_array['minutes'];
+			$sec = $time_array['seconds'];
+			$output = "new Date($yy,$mm,$dd,$hr,$min,$sec)";
+			break;
+		case 'timestamp': // a timestamp field from a pg database
+		case 'timestamptz': // a timestamp field with timezone from a pg database
+			// convert to gviz column type of 'datetime'
+			$time_stamp = strtotime($val);
+			$time_array = getdate($time_stamp);
+			$yy = $time_array['year'];
+			$mm = $time_array['mon']; //why -1?  i have no idea...
+			$dd = $time_array['mday'];
+			$hr = $time_array['hours'];
+			$min = $time_array['minutes'];
+			$sec = $time_array['seconds'];
+			$output = "new Date($yy,$mm,$dd,$hr,$min,$sec)";
+			break;
+		case 'text':  // a text field from a pg database
+		case 'varchar': // a varchar field from a pg database
+		case 'bpchar': // a bpchar field from a pg database
+			// convert to gviz column type of 'string'
+			$output = $val;
+			break;
+		default: // an unanticipated field type, put a text box or single selects, but may not work
+			// convert to gviz column type of 'string'
+			$output = $val;
+	}
+	return $output;
+}
 ?>

@@ -205,13 +205,13 @@ function pgtypeval_to_gvval ($field_type, $val) {
 		case 'int4': // an integer from a pg database
 		case 'int8': // a long integer from a pg database
 			// convert to gviz column type of 'number'
-			$output = $val;
+			$output = (integer) $val;
 			break;
 		case 'numeric': // a "numeric" real number field from a pg database
 		case 'float4': // a single precision real number field from a pg database
 		case 'float8': // a double precision real number field from a pg database
 			// convert to gviz column type of 'number'
-			$output = $val;
+			$output = (float) $val;
 			break;
 		case 'date': // a date field from a pg database
 			// convert to gviz column type of 'date'
@@ -281,13 +281,13 @@ function pgtypeval_to_hashindex ($field_type, $val) {
 		case 'int4': // an integer from a pg database
 		case 'int8': // a long integer from a pg database
 			// convert to gviz column type of 'number'
-			$output = $val;
+			$output = (integer) $val;
 			break;
 		case 'numeric': // a "numeric" real number field from a pg database
 		case 'float4': // a single precision real number field from a pg database
 		case 'float8': // a double precision real number field from a pg database
 			// convert to gviz column type of 'number'
-			$output = $val;
+			$output = (float) $val;
 			break;
 		case 'date': // a date field from a pg database
 			// convert to gviz column type of 'date'

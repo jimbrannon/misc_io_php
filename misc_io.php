@@ -269,7 +269,7 @@ function pgtypeval_to_gvval ($field_type, $val) {
  * http://www.php.net/manual/en/function.pg-field-type.php and
  * http://www.postgresql.org/docs/9.1/static/datatype-datetime.html
  *
- * the key thing is that 
+ * ...still being tested... 
  */
 function pgtypeval_to_hashindex ($field_type, $val) {
 	switch (strtolower(trim($field_type))) {
@@ -336,6 +336,50 @@ function pgtypeval_to_hashindex ($field_type, $val) {
 		default: // an unanticipated field type, put a text box or single selects, but may not work
 			// convert to gviz column type of 'string'
 			$output = $val;
+	}
+	return $output;
+}
+/*
+ * converts a pg field type and value pair into a string that can be used in a SQL string
+ * php field types:
+ * http://www.php.net/manual/en/function.pg-field-type.php and
+ * http://www.postgresql.org/docs/9.1/static/datatype-datetime.html
+ *
+ * the main thing is getting the delimiters right
+ */
+function pgtypeval_to_SQL ($field_type, $val) {
+	switch (strtolower(trim($field_type))) {
+		case 'bool': // a boolean from a pg database
+			$output = $val;
+			break;
+		case 'int2': // a small integer from a pg database
+		case 'int4': // an integer from a pg database
+		case 'int8': // a long integer from a pg database
+			$output = (integer) $val;
+			break;
+		case 'numeric': // a "numeric" real number field from a pg database
+		case 'float4': // a single precision real number field from a pg database
+		case 'float8': // a double precision real number field from a pg database
+			$output = (float) $val;
+			break;
+		case 'date': // a date field from a pg database
+			$output = "'$val'";
+			break;
+		case 'time': // a time field from a pg database
+		case 'timetz': // a time field with timezone from a pg database
+			$output = "'$val'";
+			break;
+		case 'timestamp': // a timestamp field from a pg database
+		case 'timestamptz': // a timestamp field with timezone from a pg database
+			$output = "'$val'";
+			break;
+		case 'text':  // a text field from a pg database
+		case 'varchar': // a varchar field from a pg database
+		case 'bpchar': // a bpchar field from a pg database
+			$output = "'$val'";
+			break;
+		default: // an unanticipated field type, put a text box or single selects, but may not work
+			$output = "'$val'";
 	}
 	return $output;
 }

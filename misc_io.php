@@ -1,4 +1,4 @@
-?php
+<?php
 function output_array($array){
 	foreach($array as $key => $val){
 		echo "    $key = ".$val."<br>";

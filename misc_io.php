@@ -135,6 +135,77 @@ function makeformatstring($names){
     return $formatstring;
 }
 /*
+ * a map of user entered gviz type codes to the gviz type integer indices
+ */
+function gvcode_to_gvindex($gvcode) {
+	// preprocess the code arg
+	switch (strlen(trim($gvcode))) {
+		case 0:
+			$code = "o";
+			break;
+		case 1:
+			$code = strtolower($gvcode);
+			break;
+		default:
+			$code = strtolower($gvcode[0]);
+	}
+	// convert to an integer type code
+	switch ($code) {
+		case n: // N (1) - number
+			$output = 1;
+			break;
+		case b: // B (2) - boolean
+			$output = 2;
+			break;
+		case d: // D (3) - date
+			$output = 3;
+			break;
+		case t: // T (4) - timeofday
+			$output = 4;
+			break;
+		case a: // A (5) - datetime
+			$output = 5;
+			break;
+		case s: // S (6) - string
+			$output = 6;
+			break;
+		case o: // note everything else returns a 0 - use the default mapping
+		default:
+			$output = 0;
+	}
+	return $output;
+}
+/*
+ * a map of user entered gviz type indices to the appropriate google visualization column types
+ * https://developers.google.com/chart/interactive/docs/reference
+ */
+function gvindex_to_gvtype ($gvindex) {
+	switch ((integer) $gvindex) {
+		case 1: // N (1) - number
+			$output = "number";
+			break;
+		case 2: // B (2) - boolean
+			$output = "boolean";
+			break;
+		case 3: // D (3) - date
+			$output = "date";
+			break;
+		case 4: // T (4) - timeofday
+			$output = "timeofday";
+			break;
+		case 5: // A (5) - datetime
+			$output = "datetime";
+			break;
+		case 6: // S (6) - string
+			$output = "string";
+			break;
+		case 0: // note this routine is not intended to handle this case, but I included it to remind a future programmer of this...
+		default:
+			$output = null; // calling function can test for this as false
+	}
+	return $output;
+}
+/*
  * a map of pg field types returned from the pg_field_type() function
  * http://www.php.net/manual/en/function.pg-field-type.php
  * and

@@ -253,6 +253,64 @@ function pgtype_to_gvtype ($field_type) {
 	return $output;
 }
 /*
+ * converts a gv column type and value pair into the correct string for the GViz JSON
+ * google visualization column types:
+ * https://developers.google.com/chart/interactive/docs/reference
+ * 
+ * some weird stuff here, such as date strings must be copnverted to "new Date()" javascript function calls
+ *  
+ * it's a moving gun and a moving target - might need to keep this mapping updated
+ */
+function gvtypeval_to_gvval ($type, $val) {
+	switch (strtolower(trim($type))) {
+		case 'boolean': // a boolean
+			$output = $val;
+			break;
+		case 'number': // a number
+			$output = $val;
+			break;
+		case 'date': // a date column - requires the javascript hack
+			$time_stamp = strtotime($val);
+			$time_array = getdate($time_stamp);
+			$yy = $time_array['year'];
+			$mm = $time_array['mon']-1; //why -1?  i have no idea...
+			$dd = $time_array['mday'];
+			$hr = $time_array['hours'];
+			$min = $time_array['minutes'];
+			$sec = $time_array['seconds'];
+			$output = "new Date($yy,$mm,$dd,$hr,$min,$sec)";
+			break;
+		case 'timeofday': // a timeofday column - requires the javascript hack
+			$time_stamp = strtotime($val);
+			$time_array = getdate($time_stamp);
+			$yy = $time_array['year'];
+			$mm = $time_array['mon']-1; //why -1?  i have no idea...
+			$dd = $time_array['mday'];
+			$hr = $time_array['hours'];
+			$min = $time_array['minutes'];
+			$sec = $time_array['seconds'];
+			$output = "new Date($yy,$mm,$dd,$hr,$min,$sec)";
+			break;
+		case 'datetime': // a datetime column - requires the javascript hack
+			$time_stamp = strtotime($val);
+			$time_array = getdate($time_stamp);
+			$yy = $time_array['year'];
+			$mm = $time_array['mon']-1; //why -1?  i have no idea...
+			$dd = $time_array['mday'];
+			$hr = $time_array['hours'];
+			$min = $time_array['minutes'];
+			$sec = $time_array['seconds'];
+			$output = "new Date($yy,$mm,$dd,$hr,$min,$sec)";
+			break;
+		case 'string':  // a string column
+			$output = $val;
+			break;
+		default: // an unanticipated column type
+			$output = $val;
+	}
+	return $output;
+}
+/*
  * converts a pg field type and value pair into the correct string for the GViz JSON
  * php field types:
  * http://www.php.net/manual/en/function.pg-field-type.php

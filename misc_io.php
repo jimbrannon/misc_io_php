@@ -73,7 +73,7 @@ function strtobool($str) {
  *                     be true.
  * @return bool The boolean equivalent or null (if strict, and no exact equivalent)
  */
-function boolval($in, $strict=false) {
+function boolval_($in, $strict=false) {
     $out = null;
     $in = (is_string($in)?strtolower($in):$in);
     // if not strict, we only have to check if something is false
